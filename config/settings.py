@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "core",
     "accounts",
     "problems",
+    "submissions",
     # third appd
     "rest_framework",
 ]
