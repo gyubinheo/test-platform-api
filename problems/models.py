@@ -46,3 +46,19 @@ class TestCase(TimeStampedModel):
 
     def __str__(self):
         return f"Testcase for {self.problem.title}"
+
+
+class Answer(TimeStampedModel):
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
+    code = models.TextField()
+
+    def __str__(self):
+        return f"Answer for {self.problem.title}"
+
+
+class Explanation(TimeStampedModel):
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
+    description = models.TextField()
+
+    def __str__(self):
+        return f"Explanation for {self.problem.title}"
