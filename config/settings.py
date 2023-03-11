@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # local apps
     "core",
     "accounts",
+    "problems",
     # third appd
     "rest_framework",
 ]
