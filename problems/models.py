@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 
 from core.models import TimeStampedModel
@@ -35,6 +36,44 @@ class Problem(TimeStampedModel):
     def __str__(self):
         return self.title
 
+    def get_answer(self):
+        cache_key = f"answer_for_problem_{self.pk}"
+        answer = cache.get(cache_key)
+        if answer is not None:
+            return answer
+
+        try:
+            answer = self.answer
+            cache.set(cache_key, answer, timeout=60 * 60)
+            return answer
+        except Answer.DoesNotExist:
+            return None
+
+    def get_explanation(self):
+        cache_key = f"explanation_for_problem_{self.pk}"
+        explanation = cache.get(cache_key)
+        if explanation is not None:
+            return explanation
+
+        try:
+            explanation = self.explanation
+            cache.set(cache_key, explanation, timeout=60 * 60)
+            return explanation
+        except Explanation.DoesNotExist:
+            return None
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete("problems")
+        cache.delete(f"answer_for_problem_{self.pk}")
+        cache.delete(f"explanation_for_problem_{self.pk}")
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        cache.delete("problems")
+        cache.delete(f"answer_for_problem_{self.pk}")
+        cache.delete(f"explanation_for_problem_{self.pk}")
+
     class Meta:
         db_table = "problems"
 
@@ -55,6 +94,17 @@ class Answer(TimeStampedModel):
     def __str__(self):
         return f"Answer for {self.problem.title}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache_key = f"answer_for_problem_{self.problem.pk}"
+        cache.delete(cache_key)
+
+    def delete(self, *args, **kwargs):
+        problem_id = self.problem_id
+        super().delete(*args, **kwargs)
+        cache_key = f"answer_for_problem_{problem_id}"
+        cache.delete(cache_key)
+
 
 class Explanation(TimeStampedModel):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
@@ -62,3 +112,14 @@ class Explanation(TimeStampedModel):
 
     def __str__(self):
         return f"Explanation for {self.problem.title}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache_key = f"explanation_for_problem_{self.problem.pk}"
+        cache.delete(cache_key)
+
+    def delete(self, *args, **kwargs):
+        problem_id = self.problem_id
+        super().delete(*args, **kwargs)
+        cache_key = f"explanation_for_problem_{problem_id}"
+        cache.delete(cache_key)
