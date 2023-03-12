@@ -76,6 +76,7 @@ class Problem(TimeStampedModel):
 
     class Meta:
         db_table = "problems"
+        ordering = ["difficulty", "-created_at"]
 
 
 class TestCase(TimeStampedModel):
