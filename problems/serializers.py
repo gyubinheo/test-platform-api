@@ -10,7 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "category_name"]
 
 
-class ProblemSerializer(serializers.ModelSerializer):
+class ProblemListSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.get_name_display")
     created_user_email = serializers.CharField(source="created_by.email")
 
@@ -21,10 +21,22 @@ class ProblemSerializer(serializers.ModelSerializer):
             "category_name",
             "title",
             "description",
-            "difficulty",
+            "get_difficulty_display",
             "created_user_email",
-            "answer",
-            "explanation",
+            "updated_at",
+        ]
+
+
+class ProblemDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Problem
+        fields = [
+            "id",
+            "category",
+            "title",
+            "description",
+            "difficulty",
+            "created_by",
             "updated_at",
         ]
 
