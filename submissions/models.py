@@ -24,9 +24,7 @@ class Submission(TimeStampedModel):
 
 class Result(TimeStampedModel):
     submission = models.OneToOneField(Submission, on_delete=models.CASCADE)
-    time_taken = models.FloatField()
-    memory_used = models.FloatField()
-    message = models.TextField()
+    message = models.TextField(blank=True)
     score = models.IntegerField(default=0)
 
     def __str__(self):
