@@ -1,13 +1,13 @@
 from django.urls import path, include
-from rest_framework import routers
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import AnswerViewSet, ExplanationViewSet, ProblemViewSet, CategoryListView
 
-router = routers.DefaultRouter()
-router.register(r"problems", views.ProblemViewSet)
-router.register(r"answers", views.AnswerViewSet)
-router.register(r"explanations", views.ExplanationViewSet)
+router = DefaultRouter()
+router.register("answers", AnswerViewSet)
+router.register("explanations", ExplanationViewSet)
+router.register("problems", ProblemViewSet)
 
 urlpatterns = [
-    path("api/", include(router.urls)),
-    path("api/category/", views.CategoryListView.as_view()),
+    path("categories/", CategoryListView.as_view(), name="category-list"),
+    path("", include(router.urls)),
 ]
