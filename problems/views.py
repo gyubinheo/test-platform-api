@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.db.models import Count
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from .models import Category, Problem, Answer, Explanation
@@ -23,8 +24,11 @@ class ProblemViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         problems = cache.get("problems")
         if not problems:
-            problems = Problem.objects.all()
-            cache.set("problems", problems, 60 * 60)
+            problems = (
+                self.get_queryset()
+                .annotate(num_submissions=Count("submission"))
+                .order_by("difficulty", "num_submissions", "-created_at")
+            )
         serializer = ProblemListSerializer(problems, many=True)
         return Response(serializer.data)
 
