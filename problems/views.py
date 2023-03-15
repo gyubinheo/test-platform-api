@@ -20,7 +20,7 @@ class ProblemViewSet(viewsets.ModelViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemDetailSerializer
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         problems = cache.get("problems")
         if not problems:
             problems = Problem.objects.all()

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # third appd
     "rest_framework",
     "django_celery_results",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -45,7 +46,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # third middleware
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+INTERNAL_IPS = ["127.0.0.1"]
 
 ROOT_URLCONF = "config.urls"
 
