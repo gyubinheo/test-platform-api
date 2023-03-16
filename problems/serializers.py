@@ -35,12 +35,23 @@ class ProblemDetailSerializer(serializers.ModelSerializer):
     answer = AnswerSerializer()
     explanation = ExplanationSerializer()
 
+    def get_answer(self, obj):
+        return obj.get_answer()
+
+    def get_explanation(self, obj):
+        return obj.get_explanation()
+
     def create(self, validated_data):
         answer_data = validated_data.pop("answer")
         explanation_data = validated_data.pop("explanation")
         problem = Problem.objects.create(**validated_data)
-        Answer.objects.create(problem=problem, **answer_data)
-        Explanation.objects.create(problem=problem, **explanation_data)
+
+        if answer_data:
+            Answer.objects.create(problem=problem, **answer_data)
+
+        if explanation_data:
+            Explanation.objects.create(problem=problem, **explanation_data)
+
         return problem
 
     def update(self, instance, validated_data):
@@ -51,17 +62,21 @@ class ProblemDetailSerializer(serializers.ModelSerializer):
         instance.title = validated_data.get("title", instance.title)
         instance.description = validated_data.get("description", instance.description)
         instance.difficulty = validated_data.get("difficulty", instance.difficulty)
-        instance.created_by = validated_data.get("created_by", instance.created_by)
-        instance.updated_at = validated_data.get("updated_at", instance.updated_at)
         instance.save()
 
         if answer_data:
-            answer_serializer = self.fields["answer"]
-            answer_serializer.update(instance.answer, answer_data)
+            try:
+                answer_serializer = self.fields["answer"]
+                answer_serializer.update(instance.answer, answer_data)
+            except Answer.DoesNotExist:
+                Answer.objects.create(problem=instance, **answer_data)
 
         if explanation_data:
-            explanation_serializer = self.fields["explanation"]
-            explanation_serializer.update(instance.explanation, explanation_data)
+            try:
+                explanation_serializer = self.fields["explanation"]
+                explanation_serializer.update(instance.explanation, explanation_data)
+            except Explanation.DoesNotExist:
+                Explanation.objects.create(problem=instance, **explanation_data)
 
         return instance
 
