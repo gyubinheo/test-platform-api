@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_celery_results",
     "debug_toolbar",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -158,3 +159,27 @@ CACHES = {
 # Login url
 
 LOGIN_URL = "/api-auth/login"
+
+
+# DRF settings
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+# Spectacular settings
+
+SPECTACULAR_SETTINGS = {
+    # available SwaggerUI configuration parameters
+    # https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
+    },
+    # available SwaggerUI versions: https://github.com/swagger-api/swagger-ui/releases
+    "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@3.35.1",  # default
+    "SWAGGER_UI_FAVICON_HREF": STATIC_URL
+    + "your_company_favicon.png",  # default is swagger favicon
+}
