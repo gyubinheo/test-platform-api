@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,9 +9,11 @@ from .serializers import SubmissionSerializer
 from .tasks import score_submission
 
 
-class SubmissionListCreateView(generics.ListCreateAPIView):
-    queryset = Submission.objects.all()
+class SubmissionListCreateView(LoginRequiredMixin, generics.ListCreateAPIView):
     serializer_class = SubmissionSerializer
+
+    def get_queryset(self):
+        return Submission.objects.filter(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -20,12 +23,14 @@ class SubmissionListCreateView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class SubmissionRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class SubmissionRetrieveUpdateDestroyView(
+    LoginRequiredMixin, generics.RetrieveUpdateDestroyAPIView
+):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
 
 
-class ResultView(APIView):
+class ResultView(LoginRequiredMixin, APIView):
     def get(self, request, submission_id):
         try:
             submission = Submission.objects.get(id=submission_id, user=request.user)

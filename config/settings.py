@@ -153,3 +153,8 @@ CACHES = {
         },
     }
 }
+
+
+# Login url
+
+LOGIN_URL = "/api-auth/login"
