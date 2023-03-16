@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from django.db.models import Count
+from django.db.models import Count, Q
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from .models import Category, Problem, Answer, Explanation
@@ -29,14 +29,16 @@ class ProblemViewSet(viewsets.ModelViewSet):
                 .annotate(num_submissions=Count("submission"))
                 .order_by("difficulty", "num_submissions", "-created_at")
             )
-        serializer = ProblemListSerializer(problems, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, *args, **kwargs):
-        problem = self.get_object()
-        serializer = self.get_serializer(problem)
-        serializer.data["answer"] = problem.get_answer()
-        serializer.data["explanation"] = problem.get_explanation()
+            cache.set("problems", problems, 60 * 60 * 24)
+        q = Q()
+        solved = self.request.query_params.get("solved")
+        difficulty = self.request.query_params.get("difficulty")
+        if solved == "false":
+            q &= ~Q(submission__result__score=100)
+        if difficulty:
+            difficulty_values = difficulty.split(",")
+            q &= Q(difficulty__in=difficulty_values)
+        serializer = ProblemListSerializer(problems.filter(q), many=True)
         return Response(serializer.data)
 
 

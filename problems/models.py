@@ -44,7 +44,7 @@ class Problem(TimeStampedModel):
 
         try:
             answer = self.answer
-            cache.set(cache_key, answer, timeout=60 * 60)
+            cache.set(cache_key, answer, 60 * 60 * 24)
             return answer
         except Answer.DoesNotExist:
             return None
@@ -57,7 +57,7 @@ class Problem(TimeStampedModel):
 
         try:
             explanation = self.explanation
-            cache.set(cache_key, explanation, timeout=60 * 60)
+            cache.set(cache_key, explanation, 60 * 60 * 24)
             return explanation
         except Explanation.DoesNotExist:
             return None
