@@ -39,26 +39,26 @@ class Problem(TimeStampedModel):
     def get_answer(self):
         cache_key = f"answer_for_problem_{self.pk}"
         answer = cache.get(cache_key)
-        if answer is not None:
-            return answer
+        if answer:
+            return answer.code
 
         try:
             answer = self.answer
             cache.set(cache_key, answer, 60 * 60 * 24)
-            return answer
+            return answer.code
         except Answer.DoesNotExist:
             return None
 
     def get_explanation(self):
         cache_key = f"explanation_for_problem_{self.pk}"
         explanation = cache.get(cache_key)
-        if explanation is not None:
-            return explanation
+        if explanation:
+            return explanation.description
 
         try:
             explanation = self.explanation
             cache.set(cache_key, explanation, 60 * 60 * 24)
-            return explanation
+            return explanation.description
         except Explanation.DoesNotExist:
             return None
 
